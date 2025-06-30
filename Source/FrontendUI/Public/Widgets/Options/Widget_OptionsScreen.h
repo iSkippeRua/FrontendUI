@@ -8,6 +8,7 @@
 
 class UFrontendTabListWidgetBase;
 class UOptionsDataRegistry;
+class UFrontendCommonListView;
 
 UCLASS(Abstract, BlueprintType, meta = (DisableNativeTick))
 class FRONTENDUI_API UWidget_OptionsScreen : public UWidget_ActivatableBase
@@ -30,6 +31,9 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	UFrontendTabListWidgetBase* TabListWidget_OptionsTabs;
+	
+	UPROPERTY(meta = (BindWidget))
+	UFrontendCommonListView* CommonListView_OptionsList;
 
 	// Handle the creation of data in the options screen.
 	UPROPERTY(Transient)
