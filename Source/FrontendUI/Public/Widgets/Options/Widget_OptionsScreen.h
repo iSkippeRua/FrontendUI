@@ -30,6 +30,9 @@ private:
 	UFUNCTION()
 	void OnOptionsTabSelected(FName TabID);
 
+	void OnListViewItemHovered(UObject* InHoveredItem, bool bWasHovered);
+	void OnListViewItemSelected(UObject* InSelectedItem);
+
 	UPROPERTY(meta = (BindWidget))
 	UFrontendTabListWidgetBase* TabListWidget_OptionsTabs;
 	
