@@ -9,6 +9,7 @@
 class UFrontendTabListWidgetBase;
 class UOptionsDataRegistry;
 class UFrontendCommonListView;
+class UWidget_OptionsDetailsView;
 
 UCLASS(Abstract, BlueprintType, meta = (DisableNativeTick))
 class FRONTENDUI_API UWidget_OptionsScreen : public UWidget_ActivatableBase
@@ -33,11 +34,16 @@ private:
 	void OnListViewItemHovered(UObject* InHoveredItem, bool bWasHovered);
 	void OnListViewItemSelected(UObject* InSelectedItem);
 
+	FString TryGetEntryWidgetClassName(UObject* InOwningListItem) const;
+
 	UPROPERTY(meta = (BindWidget))
 	UFrontendTabListWidgetBase* TabListWidget_OptionsTabs;
 	
 	UPROPERTY(meta = (BindWidget))
 	UFrontendCommonListView* CommonListView_OptionsList;
+
+	UPROPERTY(meta = (BindWidget))
+	UWidget_OptionsDetailsView* DetailsView_ListEntryInfo;
 
 	// Handle the creation of data in the options screen.
 	UPROPERTY(Transient)
