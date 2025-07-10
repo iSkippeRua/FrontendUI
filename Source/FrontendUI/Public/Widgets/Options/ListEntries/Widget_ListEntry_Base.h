@@ -19,11 +19,16 @@ class FRONTENDUI_API UWidget_ListEntry_Base : public UCommonUserWidget, public I
 public:
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On List Entry Widget Hovered"))
 	void BP_OnListEntryWidgetHovered(bool bWasHovered, bool bIsEntryWidgetStillSelected);
-	
 	void NativeOnListEntryWidgetHovered(bool bWasHovered);
-	
+
 protected:
+	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "Get Widget To Focus For Gamepad"))
+	UWidget* BP_GetWidgetToFocusForGamepad() const;
+	
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
+	virtual void NativeOnEntryReleased() override;
+
+	virtual FReply NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent) override;
 
 	virtual void OnOwningListDataObjectSet(UListDataObject_Base* InOwningListDataObject);
 

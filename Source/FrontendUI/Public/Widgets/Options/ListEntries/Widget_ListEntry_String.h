@@ -24,6 +24,8 @@ protected:
 private:
 	void OnPreviousOptionButtonClicked();
 	void OnNextOptionButtonClicked();
+
+	void OnRotatorValueChanged(int32 Value, bool bUserInitiated);
 	
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, AllowPrivateAccess = "true"))
 	UFrontendCommonButtonBase* CommonButton_PreviousOption;

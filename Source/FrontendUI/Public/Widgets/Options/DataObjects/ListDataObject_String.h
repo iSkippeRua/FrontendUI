@@ -15,7 +15,8 @@ public:
 	void AddDynamicOption(const FString& InStringValue, const FText& InDisplayText);
 	void AdvanceToNextOption();
 	void BackToPreviousOption();
-
+	void OnRotatorInitiatedValueChanged(const FText& InNewSelectedText);
+	
 protected:
 	virtual void OnDataObjectInitialized() override;
 

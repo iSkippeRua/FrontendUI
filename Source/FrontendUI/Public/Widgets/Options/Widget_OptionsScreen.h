@@ -23,6 +23,7 @@ protected:
 
 	virtual void NativeOnActivated() override;
 	virtual void NativeOnDeactivated() override;
+	virtual UWidget* NativeGetDesiredFocusTarget() const override;
 	
 private:
 	UOptionsDataRegistry* GetOrCreateDataRegistry();
