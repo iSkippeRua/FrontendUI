@@ -15,9 +15,12 @@ public:
 	void AddDynamicOption(const FString& InStringValue, const FText& InDisplayText);
 	void AdvanceToNextOption();
 	void BackToPreviousOption();
-	
+
 protected:
 	virtual void OnDataObjectInitialized() override;
+
+	virtual bool CanResetBackToDefaultValue() const override;
+	virtual bool TryResetBackToDefaultValue() override;
 
 	bool TrySetDisplayTextFromStringValue(const FString& InStringValue);
 	

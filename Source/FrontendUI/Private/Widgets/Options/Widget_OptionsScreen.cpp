@@ -11,6 +11,10 @@
 #include "FrontendSettings/FrontendGameUserSettings.h"
 #include "Widgets/Options/ListEntries/Widget_ListEntry_Base.h"
 #include "Widgets/Options/Widget_OptionsDetailsView.h"
+#include "Subsystems/FrontendUISubsystem.h"
+#include "Widgets/Components/FrontendCommonButtonBase.h"
+
+#include "FrontendDebugHelper.h"
 
 void UWidget_OptionsScreen::NativeOnInitialized()
 {
@@ -80,7 +84,52 @@ UOptionsDataRegistry* UWidget_OptionsScreen::GetOrCreateDataRegistry()
 
 void UWidget_OptionsScreen::OnResetBoundActionTriggered()
 {
+	if (ResettableDataArray.IsEmpty())
+		return;
+
+	UCommonButtonBase* SelectedTabButton = TabListWidget_OptionsTabs->GetTabButtonBaseByID(TabListWidget_OptionsTabs->GetActiveTab());
+
+	const FString SelectedTabButtonName = CastChecked<UFrontendCommonButtonBase>(SelectedTabButton)->GetButtonDisplayText().ToString();
 	
+	UFrontendUISubsystem::Get(this)->PushConfirmScreenToModalStackAsync(
+		EConfirmScreenType::YesNo,
+		FText::FromString(TEXT("Reset")),
+		FText::FromString(TEXT("Are you sure you want to reset all the settings under the ") + SelectedTabButtonName + TEXT(" tab?")),
+		[this](EConfirmScreenButtonType ClickedButtonType)
+		{
+			if (ClickedButtonType != EConfirmScreenButtonType::Confirmed)
+			{
+				return;
+			}
+
+			bIsResettingData = true;
+			bool bHasDataFailedToReset = false;
+			
+			for (UListDataObject_Base* DataToReset : ResettableDataArray)
+			{
+				if (!DataToReset)
+					continue;
+
+				if (DataToReset->TryResetBackToDefaultValue())
+				{
+					Debug::Print(DataToReset->GetDataDisplayName().ToString() + TEXT(" was reset."));
+				}
+				else
+				{
+					bHasDataFailedToReset = true;
+					Debug::Print(DataToReset->GetDataDisplayName().ToString() + TEXT(" failed to reset."));
+				}
+			}
+
+			if (!bHasDataFailedToReset)
+			{
+				ResettableDataArray.Empty();
+				RemoveActionBinding(ResetActionHandle);
+			}
+
+			bIsResettingData = false;
+		}
+	);
 }
 
 void UWidget_OptionsScreen::OnBackBoundActionTriggered()
@@ -101,6 +150,36 @@ void UWidget_OptionsScreen::OnOptionsTabSelected(FName TabID)
 	{
 		CommonListView_OptionsList->NavigateToIndex(0);
 		CommonListView_OptionsList->SetSelectedIndex(0);
+	}
+
+	ResettableDataArray.Empty();
+
+	for (UListDataObject_Base* FoundListSourceItem : FoundListSourceItems)
+	{
+		if (!FoundListSourceItem)
+			continue;
+
+		if (!FoundListSourceItem->OnListDataModified.IsBoundToObject(this))
+		{
+			FoundListSourceItem->OnListDataModified.AddUObject(this, &ThisClass::OnListViewListDataModified);
+		}
+		
+		if (FoundListSourceItem->CanResetBackToDefaultValue())
+		{
+			ResettableDataArray.AddUnique(FoundListSourceItem);
+		}
+	}
+
+	if (ResettableDataArray.IsEmpty())
+	{
+		RemoveActionBinding(ResetActionHandle);
+	}
+	else
+	{
+		if (!GetActionBindings().Contains(ResetActionHandle))
+		{
+			AddActionBinding(ResetActionHandle);
+		}
 	}
 }
 
@@ -153,4 +232,33 @@ FString UWidget_OptionsScreen::TryGetEntryWidgetClassName(UObject* InOwningListI
 	}
 
 	return TEXT("Entry Widget Not Valid");
+}
+
+void UWidget_OptionsScreen::OnListViewListDataModified(UListDataObject_Base* ModifiedData,
+	EOptionsListDataModifyReason ModifiedReason)
+{
+	if (!ModifiedData || bIsResettingData)
+		return;
+
+	if (ModifiedData->CanResetBackToDefaultValue())
+	{
+		ResettableDataArray.AddUnique(ModifiedData);
+
+		if (!GetActionBindings().Contains(ResetActionHandle))
+		{
+			AddActionBinding(ResetActionHandle);
+		}
+	}
+	else
+	{
+		if (ResettableDataArray.Contains(ModifiedData))
+		{
+			ResettableDataArray.Remove(ModifiedData);
+		}
+	}
+
+	if (ResettableDataArray.IsEmpty())
+	{
+		RemoveActionBinding(ResetActionHandle);
+	}
 }

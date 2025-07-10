@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FrontendTypes/FrontendEnumTypes.h"
 #include "Widgets/Widget_ActivatableBase.h"
 #include "Widget_OptionsScreen.generated.h"
 
@@ -10,6 +11,7 @@ class UFrontendTabListWidgetBase;
 class UOptionsDataRegistry;
 class UFrontendCommonListView;
 class UWidget_OptionsDetailsView;
+class UListDataObject_Base;
 
 UCLASS(Abstract, BlueprintType, meta = (DisableNativeTick))
 class FRONTENDUI_API UWidget_OptionsScreen : public UWidget_ActivatableBase
@@ -36,6 +38,8 @@ private:
 
 	FString TryGetEntryWidgetClassName(UObject* InOwningListItem) const;
 
+	void OnListViewListDataModified(UListDataObject_Base* ModifiedData, EOptionsListDataModifyReason ModifiedReason);
+
 	UPROPERTY(meta = (BindWidget))
 	UFrontendTabListWidgetBase* TabListWidget_OptionsTabs;
 	
@@ -53,4 +57,9 @@ private:
 	FDataTableRowHandle ResetAction;
 	
 	FUIActionBindingHandle ResetActionHandle;
+
+	UPROPERTY(Transient)
+	TArray<UListDataObject_Base*>  ResettableDataArray;
+
+	bool bIsResettingData = false;
 };
