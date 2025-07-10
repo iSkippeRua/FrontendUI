@@ -19,9 +19,27 @@ public:
 
 	UFUNCTION()
 	void SetCurrentGameDifficulty(const FString& InNewDifficulty) { CurrentGameDifficulty = InNewDifficulty; }
+
+	UFUNCTION()
+	FString GetCurrentGameAudioLanguage() const { return CurrentGameAudioLanguage; }
+	
+	UFUNCTION()
+	void SetCurrentGameAudioLanguage(const FString& InNewAudioLanguage) { CurrentGameAudioLanguage = InNewAudioLanguage; }
+
+	UFUNCTION()
+	FString GetCurrentSwitchTargetStatus() const { return CurrentSwitchTargetStatus; }
+	
+	UFUNCTION()
+	void SetCurrentSwitchTargetStatus(const FString& InNewSwitchTargetStatus) { CurrentSwitchTargetStatus = InNewSwitchTargetStatus; }
 	
 private:
 	UPROPERTY(Config)
 	FString CurrentGameDifficulty;
+
+	UPROPERTY(Config)
+	FString CurrentGameAudioLanguage;
+
+	UPROPERTY(Config)
+	FString CurrentSwitchTargetStatus;
 	
 };
