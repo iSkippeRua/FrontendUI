@@ -12,8 +12,11 @@ class FRONTENDUI_API UFrontendGameUserSettings : public UGameUserSettings
 	GENERATED_BODY()
 
 public:
+	UFrontendGameUserSettings();
+	
 	static UFrontendGameUserSettings* Get();
 
+	// <--- Gameplay Tab Start --->
 	UFUNCTION()
 	FString GetCurrentGameDifficulty() const { return CurrentGameDifficulty; }
 
@@ -31,8 +34,18 @@ public:
 	
 	UFUNCTION()
 	void SetCurrentSwitchTargetStatus(const FString& InNewSwitchTargetStatus) { CurrentSwitchTargetStatus = InNewSwitchTargetStatus; }
+	// <--- Gameplay Tab End --->
+
+	// <--- Audio Tab Start --->
+	UFUNCTION()
+	float GetOverallVolume() const { return OverallVolume; }
+
+	UFUNCTION()
+	void SetOverallVolume(float InVolume);
+	// <--- Audio Tab End --->
 	
 private:
+	// <--- Gameplay Tab Start --->
 	UPROPERTY(Config)
 	FString CurrentGameDifficulty;
 
@@ -41,5 +54,11 @@ private:
 
 	UPROPERTY(Config)
 	FString CurrentSwitchTargetStatus;
+	// <--- Gameplay Tab End --->
+
+	// <--- Audio Tab Start --->
+	UPROPERTY(Config)
+	float OverallVolume;
+	// <--- Audio Tab End --->
 	
 };
