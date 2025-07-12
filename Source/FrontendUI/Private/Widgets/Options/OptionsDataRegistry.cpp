@@ -170,6 +170,7 @@ void UOptionsDataRegistry::InitAudioCollectionTab()
 
 		AudioTabCollection->AddChildListData(VolumeCategoryCollection);
 
+		// Overall Volume
 		{
 			UListDataObject_Scalar* OverallVolume = NewObject<UListDataObject_Scalar>();
 			OverallVolume->SetDataID(FName("OverallVolume"));
@@ -188,6 +189,57 @@ void UOptionsDataRegistry::InitAudioCollectionTab()
 			OverallVolume->SetShouldApplySettingsImmediately(true);
 			
 			VolumeCategoryCollection->AddChildListData(OverallVolume);
+		}
+
+		// Music Volume
+		{
+			UListDataObject_Scalar* MusicVolume = NewObject<UListDataObject_Scalar>();
+			MusicVolume->SetDataID(FName("MusicVolume"));
+			MusicVolume->SetDataDisplayName(FText::FromString(TEXT("Music Volume")));
+			MusicVolume->SetDescriptionRichText(FText::FromString(TEXT("This setting determine the volume of the Music, that would be played during the entire game experience.")));
+			MusicVolume->SetDisplayValueRange(TRange<float>(0.f, 1.f));
+			MusicVolume->SetOutputValueRange(TRange<float>(0.f, 2.f));
+			MusicVolume->SetSliderStepSize(0.01f);
+			MusicVolume->SetDefaultValueFromString(LexToString(1.f));
+			MusicVolume->SetDisplayNumericType(ECommonNumericType::Percentage);
+			MusicVolume->SetNumberFormattingOptions(UListDataObject_Scalar::NoDecimal());
+
+			MusicVolume->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetMusicVolume));
+			MusicVolume->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetMusicVolume));
+
+			MusicVolume->SetShouldApplySettingsImmediately(true);
+			
+			VolumeCategoryCollection->AddChildListData(MusicVolume);
+		}
+
+		// SFX Volume
+		{
+			UListDataObject_Scalar* SFXVolume = NewObject<UListDataObject_Scalar>();
+			SFXVolume->SetDataID(FName("SFXVolume"));
+			SFXVolume->SetDataDisplayName(FText::FromString(TEXT("Sound FX Volume")));
+			SFXVolume->SetDescriptionRichText(FText::FromString(TEXT("This setting determine the volume of the Sound Effects, that would be played during the entire game experience.")));
+			SFXVolume->SetDisplayValueRange(TRange<float>(0.f, 1.f));
+			SFXVolume->SetOutputValueRange(TRange<float>(0.f, 2.f));
+			SFXVolume->SetSliderStepSize(0.01f);
+			SFXVolume->SetDefaultValueFromString(LexToString(1.f));
+			SFXVolume->SetDisplayNumericType(ECommonNumericType::Percentage);
+			SFXVolume->SetNumberFormattingOptions(UListDataObject_Scalar::NoDecimal());
+
+			SFXVolume->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetSFXVolume));
+			SFXVolume->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetSFXVolume));
+
+			SFXVolume->SetShouldApplySettingsImmediately(true);
+			
+			VolumeCategoryCollection->AddChildListData(SFXVolume);
+		}
+		
+		{
+			UListDataObject_String* TestItem = NewObject<UListDataObject_String>();
+			TestItem->SetDataID(FName("TestItem"));
+			TestItem->SetDataDisplayName(FText::FromString(TEXT("Test Item")));
+			TestItem->SetDescriptionRichText(FText::FromString(TEXT("This is the description for the Test Item")));
+
+			VolumeCategoryCollection->AddChildListData(TestItem);
 		}
 	}
 	

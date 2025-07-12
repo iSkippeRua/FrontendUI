@@ -3,7 +3,7 @@
 
 #include "FrontendSettings/FrontendGameUserSettings.h"
 
-UFrontendGameUserSettings::UFrontendGameUserSettings() : OverallVolume(1.f)
+UFrontendGameUserSettings::UFrontendGameUserSettings() : OverallVolume(1.f), MusicVolume(1.f)
 {
 }
 
@@ -20,6 +20,14 @@ UFrontendGameUserSettings* UFrontendGameUserSettings::Get()
 void UFrontendGameUserSettings::SetOverallVolume(float InVolume)
 {
 	OverallVolume = InVolume;
+}
 
-	// TODO:: Implement Actual Audio Logic
+void UFrontendGameUserSettings::SetMusicVolume(float InVolume)
+{
+	MusicVolume = InVolume;
+}
+
+void UFrontendGameUserSettings::SetSFXVolume(float InVolume)
+{
+	SFXVolume = InVolume;
 }

@@ -22,6 +22,12 @@ protected:
 	virtual void OnOwningListDataObjectModified(UListDataObject_Base* OwningModifiedData, EOptionsListDataModifyReason ModifyReason) override;
 	
 private:
+	UFUNCTION()
+	void OnSliderValueChanged(float Value);
+
+	UFUNCTION()
+	void OnSliderMouseCaptureBegin();
+	
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, AllowPrivateAccess = "true"))
 	UCommonNumericTextBlock* CommonNumeric_SettingValue;
 

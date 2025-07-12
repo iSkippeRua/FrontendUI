@@ -23,8 +23,12 @@ public:
 	static FCommonNumberFormattingOptions WithDecimal(int32 NumFracDigit);
 
 	float GetCurrentValue() const;
+	void SetCurrentValueFromSlider(float InNewValue);
 	
 private:
+	virtual bool CanResetBackToDefaultValue() const override;
+	virtual bool TryResetBackToDefaultValue() override;
+	
 	float StringToFloat(const FString& InString) const;
 	
 	TRange<float> DisplayValueRange = TRange<float>(0.f, 1.f);
