@@ -3,7 +3,11 @@
 
 #include "FrontendSettings/FrontendGameUserSettings.h"
 
-UFrontendGameUserSettings::UFrontendGameUserSettings() : OverallVolume(1.f), MusicVolume(1.f)
+UFrontendGameUserSettings::UFrontendGameUserSettings()
+: OverallVolume(1.f)
+, MusicVolume(1.f)
+, bAllowBackgroundAudio(false)
+, bUseHDRAudioMode(true)
 {
 }
 
@@ -30,4 +34,14 @@ void UFrontendGameUserSettings::SetMusicVolume(float InVolume)
 void UFrontendGameUserSettings::SetSFXVolume(float InVolume)
 {
 	SFXVolume = InVolume;
+}
+
+void UFrontendGameUserSettings::SetAllowBackgroundAudio(bool bIsAllowed)
+{
+	bAllowBackgroundAudio = bIsAllowed;
+}
+
+void UFrontendGameUserSettings::SetUseHDRAudioMode(bool bIsUsed)
+{
+	bUseHDRAudioMode = bIsUsed;
 }

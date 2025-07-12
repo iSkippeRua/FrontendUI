@@ -232,14 +232,50 @@ void UOptionsDataRegistry::InitAudioCollectionTab()
 			
 			VolumeCategoryCollection->AddChildListData(SFXVolume);
 		}
-		
-		{
-			UListDataObject_String* TestItem = NewObject<UListDataObject_String>();
-			TestItem->SetDataID(FName("TestItem"));
-			TestItem->SetDataDisplayName(FText::FromString(TEXT("Test Item")));
-			TestItem->SetDescriptionRichText(FText::FromString(TEXT("This is the description for the Test Item")));
+	}
 
-			VolumeCategoryCollection->AddChildListData(TestItem);
+	// Sound Category
+	{
+		UListDataObject_Collection* SoundCategoryCollection = NewObject<UListDataObject_Collection>();
+		SoundCategoryCollection->SetDataID(FName("SoundCategoryCollection"));
+		SoundCategoryCollection->SetDataDisplayName(FText::FromString(TEXT("Sound")));
+
+		AudioTabCollection->AddChildListData(SoundCategoryCollection);
+
+		{
+			UListDataObject_StringBool* AllowBackgroundAudio = NewObject<UListDataObject_StringBool>();
+			AllowBackgroundAudio->SetDataID(FName("AllowBackgroundAudio"));
+			AllowBackgroundAudio->SetDataDisplayName(FText::FromString(TEXT("Allow Background Audio")));
+			AllowBackgroundAudio->SetDescriptionRichText(FText::FromString(TEXT("This setting is responsible for playing the Audio Track in the background while the game is folded.\n\n<Bold>Enabled:</> The Audio Track will be playing in the background while the game is folded.\n\n<Bold>Disabled:</> The Audio Track won't be playing in the background while the game is folded.")));
+			
+			AllowBackgroundAudio->OverrideTrueDisplayText(FText::FromString(TEXT("Enabled")));
+			AllowBackgroundAudio->OverrideFalseDisplayText(FText::FromString(TEXT("Disabled")));
+			AllowBackgroundAudio->SetFalseAsDefaultValue();
+			
+			AllowBackgroundAudio->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetAllowBackgroundAudio));
+			AllowBackgroundAudio->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetAllowBackgroundAudio));
+
+			AllowBackgroundAudio->SetShouldApplySettingsImmediately(true);
+
+			SoundCategoryCollection->AddChildListData(AllowBackgroundAudio);
+		}
+
+		{
+			UListDataObject_StringBool* UseHDRAudioMode = NewObject<UListDataObject_StringBool>();
+			UseHDRAudioMode->SetDataID(FName("UseHDRAudioMode"));
+			UseHDRAudioMode->SetDataDisplayName(FText::FromString(TEXT("Use HDR Audio Mode")));
+			UseHDRAudioMode->SetDescriptionRichText(FText::FromString(TEXT("This settings is responsible for using of the High Dynamic Range Audio Mode.\n\n<Bold>Enabled:</> The game will be using High Dynamic Range Audio Mode. Can influence the perfomance of the game.\n\n<Bold>Disabled:</> The game won't be using High Dynamic Range Audio Mode.")));
+			
+			UseHDRAudioMode->OverrideTrueDisplayText(FText::FromString(TEXT("Enabled")));
+			UseHDRAudioMode->OverrideFalseDisplayText(FText::FromString(TEXT("Disabled")));
+			UseHDRAudioMode->SetTrueAsDefaultValue();
+			
+			UseHDRAudioMode->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetUseHDRAudioMode));
+			UseHDRAudioMode->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetUseHDRAudioMode));
+
+			UseHDRAudioMode->SetShouldApplySettingsImmediately(true);
+
+			SoundCategoryCollection->AddChildListData(UseHDRAudioMode);
 		}
 	}
 	
