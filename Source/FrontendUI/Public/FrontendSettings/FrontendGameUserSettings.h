@@ -67,6 +67,14 @@ public:
 	UFUNCTION()
 	void SetUseHDRAudioMode(bool bIsUsed);
 	// <--- Audio Tab End --->
+
+	// <--- Video Tab Start --->
+	UFUNCTION()
+	float GetCurrentDisplayGamma() const;
+
+	UFUNCTION()
+	void SetCurrentDisplayGamma(float InNewGamma);
+	// <--- Video Tab End --->
 	
 private:
 	// <--- Gameplay Tab Start --->
@@ -96,5 +104,9 @@ private:
 	UPROPERTY(Config)
 	bool bUseHDRAudioMode;
 	// <--- Audio Tab End --->
+
+	// <--- Video Tab Start --->
+	
+	// <--- Video Tab End --->
 	
 };
