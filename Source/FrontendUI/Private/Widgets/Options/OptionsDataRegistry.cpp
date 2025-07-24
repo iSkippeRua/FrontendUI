@@ -10,16 +10,24 @@
 #include "FrontendGameplayTags.h"
 #include "Widgets/Options/DataObjects/ListDataObject_Scalar.h"
 #include "Widgets/Options/DataObjects/ListDataObject_StringResolution.h"
+#include "Internationalization/StringTableRegistry.h"
+#include "EnhancedInputSubsystems.h"
+#include "UserSettings/EnhancedInputUserSettings.h"
+#include "Widgets/Options/DataObjects/ListDataObject_KeyRemap.h"
+
+#include "FrontendDebugHelper.h"
 
 #define MAKE_OPTIONS_DATA_CONTROL(SetterOrGetterFuncName) \
 	MakeShared<FOptionsDataInteractionHelper>(GET_FUNCTION_NAME_STRING_CHECKED(UFrontendGameUserSettings, SetterOrGetterFuncName))
+
+#define GET_DESCRIPTION(InKey) LOCTABLE("/Game/UI/StringTables/ST_OptionsScreenDescription.ST_OptionsScreenDescription", InKey)
 
 void UOptionsDataRegistry::InitOptionsDataRegistry(ULocalPlayer* InOwningLocalPlayer)
 {
 	InitGameplayCollectionTab();
 	InitAudioCollectionTab();
 	InitVideoCollectionTab();
-	InitControlCollectionTab();
+	InitControlCollectionTab(InOwningLocalPlayer);
 }
 
 TArray<UListDataObject_Base*> UOptionsDataRegistry::GetListSourceItemsBySelectedTabID(
@@ -313,7 +321,7 @@ void UOptionsDataRegistry::InitVideoCollectionTab()
 			UListDataObject_StringEnum* WindowMode = NewObject<UListDataObject_StringEnum>();
 			WindowMode->SetDataID(FName("WindowMode"));
 			WindowMode->SetDataDisplayName(FText::FromString(TEXT("Window Mode")));
-			WindowMode->SetDescriptionRichText(FText::FromString(TEXT("This is description for Window Mode.")));
+			WindowMode->SetDescriptionRichText(GET_DESCRIPTION("WindowModeDescKey"));
 			WindowMode->AddEnumOption(EWindowMode::Fullscreen, FText::FromString(TEXT("Fullscreen Mode")));
 			WindowMode->AddEnumOption(EWindowMode::WindowedFullscreen, FText::FromString(TEXT("Borderless Window")));
 			WindowMode->AddEnumOption(EWindowMode::Windowed, FText::FromString(TEXT("Windowed")));
@@ -335,7 +343,7 @@ void UOptionsDataRegistry::InitVideoCollectionTab()
 			UListDataObject_StringResolution* ScreenResolution = NewObject<UListDataObject_StringResolution>();
 			ScreenResolution->SetDataID(FName("ScreenResolution"));
 			ScreenResolution->SetDataDisplayName(FText::FromString(TEXT("Screen Resolution")));
-			ScreenResolution->SetDescriptionRichText(FText::FromString(TEXT("This is description for Screen Resolution.")));
+			ScreenResolution->SetDescriptionRichText(GET_DESCRIPTION("ScreenResolutionsDescKey"));
 			ScreenResolution->InitResolutionValues();
 			
 			ScreenResolution->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetScreenResolution));
@@ -375,9 +383,10 @@ void UOptionsDataRegistry::InitVideoCollectionTab()
 			UListDataObject_Scalar* DisplayGamma = NewObject<UListDataObject_Scalar>();
 			DisplayGamma->SetDataID(FName("DisplayGamma"));
 			DisplayGamma->SetDataDisplayName(FText::FromString(TEXT("Brightness")));
-			DisplayGamma->SetDescriptionRichText(FText::FromString(TEXT("This is description for Brightness.")));
+			DisplayGamma->SetDescriptionRichText(GET_DESCRIPTION("DisplayGammaDescKey"));
 			DisplayGamma->SetDisplayValueRange(TRange<float>(0.f, 1.f));
 			DisplayGamma->SetOutputValueRange(TRange<float>(1.7f, 2.7f));
+			DisplayGamma->SetSliderStepSize(0.01f);
 			DisplayGamma->SetDisplayNumericType(ECommonNumericType::Percentage);
 			DisplayGamma->SetNumberFormattingOptions(UListDataObject_Scalar::NoDecimal());
 			
@@ -396,7 +405,7 @@ void UOptionsDataRegistry::InitVideoCollectionTab()
 			UListDataObject_StringInteger* OverallQuality = NewObject<UListDataObject_StringInteger>();
 			OverallQuality->SetDataID(FName("OverallQuality"));
 			OverallQuality->SetDataDisplayName(FText::FromString(TEXT("Overall Quality")));
-			OverallQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for Overall Quality")));
+			OverallQuality->SetDescriptionRichText(GET_DESCRIPTION("OverallQualityDescKey"));
 			OverallQuality->AddIntegerOption(0, FText::FromString(TEXT("Low")));
 			OverallQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
 			OverallQuality->AddIntegerOption(2, FText::FromString(TEXT("High")));
@@ -416,9 +425,10 @@ void UOptionsDataRegistry::InitVideoCollectionTab()
 			UListDataObject_Scalar* ResolutionScale = NewObject<UListDataObject_Scalar>();
 			ResolutionScale->SetDataID(FName("ResolutionScale"));
 			ResolutionScale->SetDataDisplayName(FText::FromString(TEXT("3D Resolution")));
-			ResolutionScale->SetDescriptionRichText(FText::FromString(TEXT("This is description for 3D Resolution Scale")));
+			ResolutionScale->SetDescriptionRichText(GET_DESCRIPTION("ResolutionScaleDescKey"));
 			ResolutionScale->SetDisplayValueRange(TRange<float>(0.f, 1.f));
 			ResolutionScale->SetOutputValueRange(TRange<float>(0.f, 1.f));
+			ResolutionScale->SetSliderStepSize(0.01f);
 			ResolutionScale->SetDisplayNumericType(ECommonNumericType::Percentage);
 			ResolutionScale->SetNumberFormattingOptions(UListDataObject_Scalar::NoDecimal());
 
@@ -435,7 +445,7 @@ void UOptionsDataRegistry::InitVideoCollectionTab()
 			UListDataObject_StringInteger* GlobalIlluminationQuality = NewObject<UListDataObject_StringInteger>();
 			GlobalIlluminationQuality->SetDataID(FName("GlobalIlluminationQuality"));
 			GlobalIlluminationQuality->SetDataDisplayName(FText::FromString(TEXT("Global Illumination")));
-			GlobalIlluminationQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for Global Illumination Quality")));
+			GlobalIlluminationQuality->SetDescriptionRichText(GET_DESCRIPTION("GlobalIlluminationQualityDescKey"));
 			GlobalIlluminationQuality->AddIntegerOption(0, FText::FromString(TEXT("Low")));
 			GlobalIlluminationQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
 			GlobalIlluminationQuality->AddIntegerOption(2, FText::FromString(TEXT("High")));
@@ -457,7 +467,7 @@ void UOptionsDataRegistry::InitVideoCollectionTab()
 			UListDataObject_StringInteger* ShadowQuality = NewObject<UListDataObject_StringInteger>();
 			ShadowQuality->SetDataID(FName("ShadowQuality"));
 			ShadowQuality->SetDataDisplayName(FText::FromString(TEXT("Shadow Quality")));
-			ShadowQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for Shadow Quality")));
+			ShadowQuality->SetDescriptionRichText(GET_DESCRIPTION("ShadowQualityDescKey"));
 			ShadowQuality->AddIntegerOption(0, FText::FromString(TEXT("Low")));
 			ShadowQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
 			ShadowQuality->AddIntegerOption(2, FText::FromString(TEXT("High")));
@@ -479,7 +489,7 @@ void UOptionsDataRegistry::InitVideoCollectionTab()
 			UListDataObject_StringInteger* AntiAliasing = NewObject<UListDataObject_StringInteger>();
 			AntiAliasing->SetDataID(FName("AntiAliasing"));
 			AntiAliasing->SetDataDisplayName(FText::FromString(TEXT("Anti-Aliasing")));
-			AntiAliasing->SetDescriptionRichText(FText::FromString(TEXT("This is description for Anti-Aliasing Quality")));
+			AntiAliasing->SetDescriptionRichText(GET_DESCRIPTION("AntiAliasingDescKey"));
 			AntiAliasing->AddIntegerOption(0, FText::FromString(TEXT("Low")));
 			AntiAliasing->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
 			AntiAliasing->AddIntegerOption(2, FText::FromString(TEXT("High")));
@@ -501,7 +511,7 @@ void UOptionsDataRegistry::InitVideoCollectionTab()
 			UListDataObject_StringInteger* ViewDistanceQuality = NewObject<UListDataObject_StringInteger>();
 			ViewDistanceQuality->SetDataID(FName("ViewDistanceQuality"));
 			ViewDistanceQuality->SetDataDisplayName(FText::FromString(TEXT("View Distance")));
-			ViewDistanceQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for View Distance Quality")));
+			ViewDistanceQuality->SetDescriptionRichText(GET_DESCRIPTION("ViewDistanceDescKey"));
 			ViewDistanceQuality->AddIntegerOption(0, FText::FromString(TEXT("Low")));
 			ViewDistanceQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
 			ViewDistanceQuality->AddIntegerOption(2, FText::FromString(TEXT("High")));
@@ -523,7 +533,7 @@ void UOptionsDataRegistry::InitVideoCollectionTab()
 			UListDataObject_StringInteger* TextureQuality = NewObject<UListDataObject_StringInteger>();
 			TextureQuality->SetDataID(FName("TextureQuality"));
 			TextureQuality->SetDataDisplayName(FText::FromString(TEXT("Texture Quality")));
-			TextureQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for Texture Quality")));
+			TextureQuality->SetDescriptionRichText(GET_DESCRIPTION("TextureQualityDescKey"));
 			TextureQuality->AddIntegerOption(0, FText::FromString(TEXT("Low")));
 			TextureQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
 			TextureQuality->AddIntegerOption(2, FText::FromString(TEXT("High")));
@@ -545,7 +555,7 @@ void UOptionsDataRegistry::InitVideoCollectionTab()
 			UListDataObject_StringInteger* VisualEffectQuality = NewObject<UListDataObject_StringInteger>();
 			VisualEffectQuality->SetDataID(FName("VisualEffectQuality"));
 			VisualEffectQuality->SetDataDisplayName(FText::FromString(TEXT("Visual Effect")));
-			VisualEffectQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for Visual Effect Quality")));
+			VisualEffectQuality->SetDescriptionRichText(GET_DESCRIPTION("VisualEffectQualityDescKey"));
 			VisualEffectQuality->AddIntegerOption(0, FText::FromString(TEXT("Low")));
 			VisualEffectQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
 			VisualEffectQuality->AddIntegerOption(2, FText::FromString(TEXT("High")));
@@ -567,7 +577,7 @@ void UOptionsDataRegistry::InitVideoCollectionTab()
 			UListDataObject_StringInteger* ReflectionQuality = NewObject<UListDataObject_StringInteger>();
 			ReflectionQuality->SetDataID(FName("ReflectionQuality"));
 			ReflectionQuality->SetDataDisplayName(FText::FromString(TEXT("Reflection Quality")));
-			ReflectionQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for Reflection Quality")));
+			ReflectionQuality->SetDescriptionRichText(GET_DESCRIPTION("ReflectionQualityDescKey"));
 			ReflectionQuality->AddIntegerOption(0, FText::FromString(TEXT("Low")));
 			ReflectionQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
 			ReflectionQuality->AddIntegerOption(2, FText::FromString(TEXT("High")));
@@ -589,7 +599,7 @@ void UOptionsDataRegistry::InitVideoCollectionTab()
 			UListDataObject_StringInteger* PostProcessingQuality = NewObject<UListDataObject_StringInteger>();
 			PostProcessingQuality->SetDataID(FName("PostProcessingQuality"));
 			PostProcessingQuality->SetDataDisplayName(FText::FromString(TEXT("Post-Processing")));
-			PostProcessingQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for Post-Processing Quality")));
+			PostProcessingQuality->SetDescriptionRichText(GET_DESCRIPTION("PostProcessingQualityDescKey"));
 			PostProcessingQuality->AddIntegerOption(0, FText::FromString(TEXT("Low")));
 			PostProcessingQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
 			PostProcessingQuality->AddIntegerOption(2, FText::FromString(TEXT("High")));
@@ -619,7 +629,7 @@ void UOptionsDataRegistry::InitVideoCollectionTab()
 			UListDataObject_StringBool* VerticalSync = NewObject<UListDataObject_StringBool>();
 			VerticalSync->SetDataID(FName("VerticalSync"));
 			VerticalSync->SetDataDisplayName(FText::FromString(TEXT("V-Sync")));
-			VerticalSync->SetDescriptionRichText(FText::FromString(TEXT("This is description for V-Sync")));
+			VerticalSync->SetDescriptionRichText(GET_DESCRIPTION("VerticalSyncDescKey"));
 			
 			VerticalSync->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(IsVSyncEnabled));
 			VerticalSync->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetVSyncEnabled));
@@ -646,7 +656,7 @@ void UOptionsDataRegistry::InitVideoCollectionTab()
 			UListDataObject_String* FrameRateLimit = NewObject<UListDataObject_String>();
 			FrameRateLimit->SetDataID(FName("FrameRateLimit"));
 			FrameRateLimit->SetDataDisplayName(FText::FromString(TEXT("Frame Rate Limit")));
-			FrameRateLimit->SetDescriptionRichText(FText::FromString(TEXT("This is description for Frame Rate Limit")));
+			FrameRateLimit->SetDescriptionRichText(GET_DESCRIPTION("FrameRateLimitDescKey"));
 			
 			FrameRateLimit->AddDynamicOption(LexToString(30.f), FText::FromString(TEXT("30 FPS")));
 			FrameRateLimit->AddDynamicOption(LexToString(60.f), FText::FromString(TEXT("60 FPS")));
@@ -667,12 +677,94 @@ void UOptionsDataRegistry::InitVideoCollectionTab()
 	RegisteredOptionsTabCollections.Add(VideoTabCollection);
 }
 
-void UOptionsDataRegistry::InitControlCollectionTab()
+void UOptionsDataRegistry::InitControlCollectionTab(ULocalPlayer* InOwningLocalPlayer)
 {
 	UListDataObject_Collection* ControlTabCollection = NewObject<UListDataObject_Collection>();
 	ControlTabCollection->SetDataID(FName("ControlTabCollection"));
 	ControlTabCollection->SetDataDisplayName(FText::FromString(TEXT("Control")));
 
+	UEnhancedInputLocalPlayerSubsystem* EISubsystem = InOwningLocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+
+	check(EISubsystem);
+
+	UEnhancedInputUserSettings* EIUserSettings = EISubsystem->GetUserSettings();
+
+	check(EIUserSettings);
+	
+	{
+		UListDataObject_Collection* KeyboardMouseCategoryCollection = NewObject<UListDataObject_Collection>();
+		KeyboardMouseCategoryCollection->SetDataID(FName("KeyboardMouseCategoryCollection"));
+		KeyboardMouseCategoryCollection->SetDataDisplayName(FText::FromString(TEXT("Keyboard & Mouse")));
+
+		ControlTabCollection->AddChildListData(KeyboardMouseCategoryCollection);
+		
+		{
+			FPlayerMappableKeyQueryOptions KeyboardMouseOnly;
+			KeyboardMouseOnly.KeyToMatch = EKeys::S;
+			KeyboardMouseOnly.bMatchBasicKeyTypes = true;
+			
+			for (const TPair<FString, UEnhancedPlayerMappableKeyProfile*>& ProfilePair : EIUserSettings->GetAllAvailableKeyProfiles())
+			{
+				UEnhancedPlayerMappableKeyProfile* MappableKeyProfile = ProfilePair.Value;
+
+				check(MappableKeyProfile);
+
+				for (const TPair<FName, FKeyMappingRow>& MappingRowPair : MappableKeyProfile->GetPlayerMappingRows())
+				{
+					for (const FPlayerKeyMapping& KeyMapping : MappingRowPair.Value.Mappings)
+					{
+						if (MappableKeyProfile->DoesMappingPassQueryOptions(KeyMapping, KeyboardMouseOnly))
+						{
+							UListDataObject_KeyRemap* KeyRemapDataObject = NewObject<UListDataObject_KeyRemap>();
+							KeyRemapDataObject->SetDataID(KeyMapping.GetMappingName());
+							KeyRemapDataObject->SetDataDisplayName(KeyMapping.GetDisplayName());
+							KeyRemapDataObject->InitKeyRemapData(EIUserSettings, MappableKeyProfile, ECommonInputType::MouseAndKeyboard, KeyMapping);
+
+							KeyboardMouseCategoryCollection->AddChildListData(KeyRemapDataObject);
+						}
+					}
+				}
+			}
+		}
+
+		{
+			UListDataObject_Collection* GamepadCategoryCollection = NewObject<UListDataObject_Collection>();
+			GamepadCategoryCollection->SetDataID(FName("GamepadCategoryCollection"));
+			GamepadCategoryCollection->SetDataDisplayName(FText::FromString(TEXT("Gamepad")));
+
+			ControlTabCollection->AddChildListData(GamepadCategoryCollection);
+
+			{
+				FPlayerMappableKeyQueryOptions GamepadOnly;
+				GamepadOnly.KeyToMatch = EKeys::Gamepad_FaceButton_Bottom;
+				GamepadOnly.bMatchBasicKeyTypes = true;
+
+				for (const TPair<FString, UEnhancedPlayerMappableKeyProfile*>& ProfilePair : EIUserSettings->GetAllAvailableKeyProfiles())
+				{
+					UEnhancedPlayerMappableKeyProfile* MappableKeyProfile = ProfilePair.Value;
+
+					check(MappableKeyProfile);
+
+					for (const TPair<FName, FKeyMappingRow>& MappingRowPair : MappableKeyProfile->GetPlayerMappingRows())
+					{
+						for (const FPlayerKeyMapping& KeyMapping : MappingRowPair.Value.Mappings)
+						{
+							if (MappableKeyProfile->DoesMappingPassQueryOptions(KeyMapping, GamepadOnly))
+							{
+								UListDataObject_KeyRemap* KeyRemapDataObject = NewObject<UListDataObject_KeyRemap>();
+								KeyRemapDataObject->SetDataID(KeyMapping.GetMappingName());
+								KeyRemapDataObject->SetDataDisplayName(KeyMapping.GetDisplayName());
+								KeyRemapDataObject->InitKeyRemapData(EIUserSettings, MappableKeyProfile, ECommonInputType::Gamepad, KeyMapping);
+
+								GamepadCategoryCollection->AddChildListData(KeyRemapDataObject);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
 	RegisteredOptionsTabCollections.Add(ControlTabCollection);
 }
 
